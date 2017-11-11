@@ -1,10 +1,24 @@
-hash: f0bf3fcb2df146944871f78d095d2111fbf42b9dbb28542f7fecc038be5df1d6
-updated: 2017-11-11T10:52:42.017658018+11:00
+hash: ec20352bdd9de7f9561b8699436c715452fef3c68a6f24b3388007157a343cc9
+updated: 2017-11-11T16:57:13.205234136+11:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: e6c5e190452424b404ecdb81d6e3991d46b18e9d
+- name: github.com/beego/goyaml2
+  version: 5545475820ddd4db3f90a4900d44b65d077d702d
 - name: github.com/go-yaml/yaml
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
+- name: github.com/k0kubun/pp
+  version: 027a6d1765d673d337e687394dbe780dd64e2a1e
+- name: github.com/mattn/go-colorable
+  version: 167de6bfdfba052fa6b2d3664c8f5272e23c9072
+- name: github.com/mattn/go-isatty
+  version: 0360b2af4f38e8d38c7fce2a9f4e702702d73a39
 - name: github.com/voxelbrain/goptions
   version: 26cb8b04692384f4dc269de3b5fcf3e2ef78573e
+- name: github.com/wendal/errors
+  version: f66c77a7882b399795a8987ebf87ef64a427417e
+- name: golang.org/x/sys
+  version: f3918c30c5c2cb527c0b071a27c35120a6c0719a
+  subpackages:
+  - unix
 testImports: []

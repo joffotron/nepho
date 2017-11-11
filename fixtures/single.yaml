@@ -1,0 +1,29 @@
+---
+Resources:
+  PublicSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-southeast-2a
+      CidrBlock: 172.31.0.0/20
+      VpcId: $(VPC)
+      Tags:
+        - Key: Name
+          Value: $(AWS::StackName)-pub-subnet-0
+        - Key: SomethingElse
+          Value: $(Resource[Arn])
+
+  PublicSubnet0Routes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: $(PublicSubnet0)
+      RouteTableId: $(PublicRoutes)
+
+  PublicSubnet2:
+      AvailabilityZone: ap-southeast-2c
+      CidrBlock: 172.31.16.0/20
+
+Outputs:
+  PublicSubnet0:
+    Value: $(PublicSubnet0)
+    Export:
+      Name: $(AWS::StackName)-PublicSubnet0
