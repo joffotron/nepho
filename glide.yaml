@@ -1,0 +1,7 @@
+package: github.com/joffotron/aws-kms
+import:
+- package: github.com/voxelbrain/goptions
+  version: ^2.5.11
+- package: github.com/aws/aws-sdk-go
+  version: ^1.12.26
+- package: github.com/go-yaml/yaml

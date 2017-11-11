@@ -1,0 +1,10 @@
+hash: f0bf3fcb2df146944871f78d095d2111fbf42b9dbb28542f7fecc038be5df1d6
+updated: 2017-11-11T10:52:42.017658018+11:00
+imports:
+- name: github.com/aws/aws-sdk-go
+  version: e6c5e190452424b404ecdb81d6e3991d46b18e9d
+- name: github.com/go-yaml/yaml
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
+- name: github.com/voxelbrain/goptions
+  version: 26cb8b04692384f4dc269de3b5fcf3e2ef78573e
+testImports: []
