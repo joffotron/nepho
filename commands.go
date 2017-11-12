@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-yaml/yaml"
 	"github.com/joffotron/nepho/cfoo"
+	"github.com/joffotron/nepho/cloudformation"
 )
 
 func createWithFile(stackName, fileName, paramsFile string) {
@@ -23,6 +24,12 @@ func createWithFile(stackName, fileName, paramsFile string) {
 
 	translated := cfoo.Translate(yamlData)
 	yamlOut, err := yaml.Marshal(translated)
+
+	cfn := cloudformation.New(stackName)
+	err = cfn.Create(string(yamlOut))
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println(string(yamlOut))
 }
