@@ -11,7 +11,6 @@ func Translate(input map[string]interface{}) interface{} {
 	for key, value := range input {
 		translated[key] = translate(value)
 	}
-
 	return translated
 }
 
@@ -42,6 +41,21 @@ func translate(input interface{}) interface{} {
 }
 
 func translateString(input string) interface{} {
+	var result interface{}
+	result = getAtt(input)
+	if result != nil {
+		return result
+	}
+
+	result = ref(input)
+	if result != nil {
+		return result
+	}
+
+	return input
+}
+
+func getAtt(input string) interface{} {
 	getAttRegex := regexp.MustCompile(`\$\((.+)\[(.+)]\)`)
 	getAttValue := getAttRegex.FindStringSubmatch(input)
 	if getAttValue != nil {
@@ -50,7 +64,10 @@ func translateString(input string) interface{} {
 		getAttMap["Fn::GetAtt"] = attrs
 		return getAttMap
 	}
+	return nil
+}
 
+func ref(input string) interface{} {
 	refRegex := regexp.MustCompile(`\$\((.+)\)`)
 	refValue := refRegex.FindStringSubmatch(input)
 	if refValue != nil {
@@ -58,6 +75,5 @@ func translateString(input string) interface{} {
 		newValue["Ref"] = refValue[1]
 		return newValue
 	}
-
-	return input
+	return nil
 }
