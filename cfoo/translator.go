@@ -9,19 +9,36 @@ import (
 	"github.com/k0kubun/pp"
 )
 
-func Translate(input map[string]interface{}) (interface{}, error) {
-	// Wrap the original in a reflect.Value
-	original := reflect.ValueOf(input)
+func Translate(input map[string]interface{}) interface{} {
+	translated := make(map[string]interface{})
+	for key, value := range input {
+		translated[key] = translate(value)
+	}
 
-	cpy := reflect.New(original.Type()).Elem()
-	translateRecursive(cpy, original)
-
-	//pp.Println(copy.Interface())
-	// Remove the reflection wrapper
-	return cpy.Interface(), nil
+	return translated
 }
 
-func translateRecursive(cpy, original reflect.Value) {
+func translate(input interface{}) interface{} {
+	inputValue := reflect.ValueOf(input)
+	switch inputValue.Kind() {
+	case reflect.String:
+		return translateString(input.(string))
+	case reflect.Map:
+		translated := make(map[string]interface{})
+		for key, value := range input.(map[interface{}]interface{}) {
+			switch key.(type) {
+			case string:
+				translated[key.(string)] = translate(value)
+			}
+		}
+		return translated
+	default:
+		panic("Unsupported type " + inputValue.Kind().String())
+	}
+
+}
+
+func translateRecursiveOld(cpy, original reflect.Value) {
 	switch original.Kind() {
 	case reflect.Ptr:
 		// If it is a pointer we need to unwrap and call once again
@@ -36,7 +53,7 @@ func translateRecursive(cpy, original reflect.Value) {
 		// Allocate a new object and set the pointer to it
 		cpy.Set(reflect.New(originalValue.Type()))
 		// Unwrap the newly created pointer
-		translateRecursive(cpy.Elem(), originalValue)
+		translateRecursiveOld(cpy.Elem(), originalValue)
 	case reflect.Interface:
 		// If it is an interface (which is very similar to a pointer), do basically the
 		// same as for the pointer. Though a pointer is not the same as an interface so
@@ -47,20 +64,20 @@ func translateRecursive(cpy, original reflect.Value) {
 		// Create a new object. Now new gives us a pointer, but we want the value it
 		// points to, so we have to call Elem() to unwrap it
 		copyValue := reflect.New(originalValue.Type()).Elem()
-		translateRecursive(copyValue, originalValue)
+		translateRecursiveOld(copyValue, originalValue)
 		cpy.Set(copyValue)
 
 		// If it is a struct we translate each field
 	case reflect.Struct:
 		for i := 0; i < original.NumField(); i += 1 {
-			translateRecursive(cpy.Field(i), original.Field(i))
+			translateRecursiveOld(cpy.Field(i), original.Field(i))
 		}
 
 		// If it is a slice we create a new slice and translate each element
 	case reflect.Slice:
 		cpy.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
 		for i := 0; i < original.Len(); i += 1 {
-			translateRecursive(cpy.Index(i), original.Index(i))
+			translateRecursiveOld(cpy.Index(i), original.Index(i))
 		}
 
 		// If it is a map we create a new map and translate each value
@@ -70,7 +87,7 @@ func translateRecursive(cpy, original reflect.Value) {
 			originalValue := original.MapIndex(key)
 			// New gives us a pointer, but again we want the value
 			copyValue := reflect.New(originalValue.Type()).Elem()
-			translateRecursive(copyValue, originalValue)
+			translateRecursiveOld(copyValue, originalValue)
 			cpy.SetMapIndex(key, copyValue)
 		}
 
@@ -82,7 +99,7 @@ func translateRecursive(cpy, original reflect.Value) {
 
 		if translated.Kind() == reflect.Map {
 			cpy = reflect.MakeMap(translated.Type())
-			translateRecursive(cpy, translated)
+			translateRecursiveOld(cpy, translated)
 		} else {
 			cpy.Set(translated)
 		}
@@ -92,11 +109,15 @@ func translateRecursive(cpy, original reflect.Value) {
 	}
 }
 
-func translateValue(input string) reflect.Value {
+func translateValue(i string) reflect.Value {
+	return reflect.ValueOf(nil)
+}
+
+func translateString(input string) interface{} {
 	getAttRegex := regexp.MustCompile(`\$\((.+)\[(.+)]\)`)
 	getAttValue := getAttRegex.FindStringSubmatch(input)
 	if getAttValue != nil {
-		return reflect.ValueOf(fmt.Sprintf(`{ "Fn::GetAtt" : [ "%s", "%s" ] }`, getAttValue[1], getAttValue[2]))
+		return fmt.Sprintf(`{ "Fn::GetAtt" : [ "%s", "%s" ] }`, getAttValue[1], getAttValue[2])
 	}
 
 	refRegex := regexp.MustCompile(`\$\((.+)\)`)
@@ -104,8 +125,8 @@ func translateValue(input string) reflect.Value {
 	if refValue != nil {
 		newValue := make(map[string]string)
 		newValue["Ref"] = refValue[1]
-		return reflect.ValueOf(newValue)
+		return newValue
 	}
 
-	return reflect.ValueOf(input)
+	return input
 }

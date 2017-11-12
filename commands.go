@@ -21,7 +21,7 @@ func createWithFile(stackName, fileName, paramsFile string) {
 		panic(err)
 	}
 
-	translated, err := cfoo.Translate(yamlData)
+	translated := cfoo.Translate(yamlData)
 	yamlOut, err := yaml.Marshal(translated)
 
 	fmt.Println(string(yamlOut))
