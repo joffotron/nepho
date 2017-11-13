@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 
 	"github.com/go-yaml/yaml"
-	"github.com/joffotron/nepho/cfoo"
 	"github.com/joffotron/nepho/cloudformation"
+	"github.com/joffotron/nepho/preprocess"
 )
 
 func createWithFile(stackName, fileName, paramsFile string) {
@@ -22,7 +22,7 @@ func createWithFile(stackName, fileName, paramsFile string) {
 		panic(err)
 	}
 
-	translated := cfoo.Translate(yamlData)
+	translated := preprocess.Translate(yamlData)
 	yamlOut, err := yaml.Marshal(translated)
 	fmt.Println(string(yamlOut))
 

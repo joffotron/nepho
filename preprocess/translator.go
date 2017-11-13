@@ -1,4 +1,4 @@
-package cfoo
+package preprocess
 
 import (
 	"reflect"
