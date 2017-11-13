@@ -42,16 +42,16 @@ func translate(input interface{}) interface{} {
 
 func translateString(input string) interface{} {
 	var result interface{}
-	result = getAtt(input)
-	if result != nil {
-		return result
-	}
 
-	result = ref(input)
-	if result != nil {
-		return result
-	}
+	var checks []func(string) interface{}
+	checks = append(checks, getAtt, joinedRef, ref)
 
+	for _, fn := range checks {
+		result = fn(input)
+		if result != nil {
+			return result
+		}
+	}
 	return input
 }
 
@@ -67,8 +67,33 @@ func getAtt(input string) interface{} {
 	return nil
 }
 
+func joinedRef(input string) interface{} {
+	joinedRegex := regexp.MustCompile(`(.+)\$\((.+)\)(.+)`)
+	matches := joinedRegex.FindStringSubmatch(input)
+	if matches != nil {
+		var parts []interface{}
+		for _, part := range matches {
+			parts = append(parts, translate(part))
+		}
+		return concat(parts)
+	}
+
+	return nil
+}
+
+func concat(parts []interface{}) interface{} {
+	joinMap := make(map[string][]interface{})
+
+	args := []interface{}{""}
+	for _, part := range parts {
+		args = append(args, part)
+	}
+	joinMap["Fn::Join"] = args
+	return joinMap
+}
+
 func ref(input string) interface{} {
-	refRegex := regexp.MustCompile(`\$\((.+)\)`)
+	refRegex := regexp.MustCompile(`^\$\((.+)\)$`)
 	refValue := refRegex.FindStringSubmatch(input)
 	if refValue != nil {
 		newValue := make(map[string]string)

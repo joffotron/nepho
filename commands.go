@@ -24,6 +24,7 @@ func createWithFile(stackName, fileName, paramsFile string) {
 
 	translated := cfoo.Translate(yamlData)
 	yamlOut, err := yaml.Marshal(translated)
+	fmt.Println(string(yamlOut))
 
 	cfn := cloudformation.New(stackName)
 	err = cfn.Create(string(yamlOut))

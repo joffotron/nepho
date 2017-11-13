@@ -1,0 +1,15 @@
+---
+Resources:
+  PublicSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-southeast-2a
+      CidrBlock: 172.31.0.0/20
+      VpcId: hello-$(VPC)-world
+      Foo: $(Bar[Arn])
+
+Outputs:
+  PublicSubnet0:
+    Value: $(PublicSubnet0)
+    Export:
+      Name: $(AWS::StackName)-PublicSubnet0-$(Lambda[Arn])-foo-$(AWS::Region)
